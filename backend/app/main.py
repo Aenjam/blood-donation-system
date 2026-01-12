@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from backend.app.database import users_collection
-from backend.app.routes.donors import router as donors_router
+from app.database import users_collection
+from app.routes.donors import router as donors_router
+
 from pydantic import BaseModel
 app = FastAPI()
 

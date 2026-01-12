@@ -1,17 +1,51 @@
-from fastapi import APIRouter
-from backend.app.database import users_collection
+from fastapi import APIRouter, Query
+from app.database import donors_collection
+from bson import ObjectId
+from fastapi import HTTPException
 
-router = APIRouter(prefix="/donors", tags=["Donors"])
+router = APIRouter()
 
-@router.post("/")
-def create_donor(donor: dict):
-    result = users_collection.insert_one(donor)
-    return {"id": str(result.inserted_id)}
+@router.get("/donors")
+def get_donors(
+    blood_group: str | None = Query(default=None),
+    city: str | None = Query(default=None)
+):
+    filter_query = {}
 
-@router.get("/")
-def list_donors():
+    if blood_group:
+        filter_query["blood_group"] = blood_group
+
+    if city:
+        filter_query["city"] = city
+
     donors = []
-    for d in users_collection.find():
-        d["_id"] = str(d["_id"])
-        donors.append(d)
+    for donor in donors_collection.find(filter_query):
+        donor["_id"] = str(donor["_id"])
+        donors.append(donor)
+
     return donors
+
+
+@router.put("/donors/{donor_id}")
+def update_donor(donor_id: str, updated_data: dict):
+    result = donors_collection.update_one(
+        {"_id": ObjectId(donor_id)},
+        {"$set": updated_data}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Donor not found")
+
+    donor = donors_collection.find_one({"_id": ObjectId(donor_id)})
+    donor["_id"] = str(donor["_id"])
+
+    return donor
+@router.delete("/donors/{donor_id}")
+def delete_donor(donor_id: str):
+    result = donors_collection.delete_one({"_id": ObjectId(donor_id)})
+
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Donor not found")
+
+    return {"message": "Donor deleted successfully"}
+

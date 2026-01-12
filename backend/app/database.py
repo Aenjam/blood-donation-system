@@ -1,4 +1,3 @@
-# backend/app/database.py
 import os
 from pymongo import MongoClient
 
@@ -11,4 +10,6 @@ client = MongoClient(MONGO_URI)
 
 db = client["blood_donation_db"]
 
+# collections
+donors_collection = db["donors"]
 users_collection = db["users"]
