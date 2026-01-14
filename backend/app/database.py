@@ -1,5 +1,8 @@
 import os
 from pymongo import MongoClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
 
@@ -9,7 +12,4 @@ if not MONGO_URI:
 client = MongoClient(MONGO_URI)
 
 db = client["blood_donation_db"]
-
-# collections
 donors_collection = db["donors"]
-users_collection = db["users"]

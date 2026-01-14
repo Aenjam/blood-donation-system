@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query
 from app.database import donors_collection
+
 from bson import ObjectId
 from fastapi import HTTPException
 
@@ -38,7 +39,17 @@ def update_donor(donor_id: str, updated_data: dict):
 
     donor = donors_collection.find_one({"_id": ObjectId(donor_id)})
     donor["_id"] = str(donor["_id"])
+@router.put("/donors/{donor_id}")
+def update_donor(donor_id: str, updated_data: dict):
+    result = donors_collection.update_one(
+        {"_id": ObjectId(donor_id)},
+        {"$set": updated_data}
+    )
 
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Donor not found")
+
+    return {"message": "Donor updated successfully"}
     return donor
 @router.delete("/donors/{donor_id}")
 def delete_donor(donor_id: str):
