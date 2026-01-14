@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from app.database import donors_collection
-
 from bson import ObjectId
-from fastapi import HTTPException
 
 router = APIRouter()
 
+# ---------------------------
+# GET donors (with filters)
+# ---------------------------
 @router.get("/donors")
 def get_donors(
     blood_group: str | None = Query(default=None),
@@ -27,36 +28,43 @@ def get_donors(
     return donors
 
 
+# ---------------------------
+# UPDATE donor
+# ---------------------------
 @router.put("/donors/{donor_id}")
 def update_donor(donor_id: str, updated_data: dict):
+    try:
+        object_id = ObjectId(donor_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid donor ID")
+
     result = donors_collection.update_one(
-        {"_id": ObjectId(donor_id)},
+        {"_id": object_id},
         {"$set": updated_data}
     )
 
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Donor not found")
 
-    donor = donors_collection.find_one({"_id": ObjectId(donor_id)})
+    donor = donors_collection.find_one({"_id": object_id})
     donor["_id"] = str(donor["_id"])
-@router.put("/donors/{donor_id}")
-def update_donor(donor_id: str, updated_data: dict):
-    result = donors_collection.update_one(
-        {"_id": ObjectId(donor_id)},
-        {"$set": updated_data}
-    )
 
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Donor not found")
-
-    return {"message": "Donor updated successfully"}
     return donor
+
+
+# ---------------------------
+# DELETE donor
+# ---------------------------
 @router.delete("/donors/{donor_id}")
 def delete_donor(donor_id: str):
-    result = donors_collection.delete_one({"_id": ObjectId(donor_id)})
+    try:
+        object_id = ObjectId(donor_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid donor ID")
+
+    result = donors_collection.delete_one({"_id": object_id})
 
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Donor not found")
 
     return {"message": "Donor deleted successfully"}
-
