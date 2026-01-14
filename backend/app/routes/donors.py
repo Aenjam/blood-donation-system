@@ -1,6 +1,13 @@
 from fastapi import APIRouter, Query, HTTPException
 from app.database import donors_collection
 from bson import ObjectId
+from pydantic import BaseModel
+
+class DonorCreate(BaseModel):
+    name: str
+    blood_group: str
+    city: str
+    phone: str
 
 router = APIRouter()
 
@@ -26,6 +33,17 @@ def get_donors(
         donors.append(donor)
 
     return donors
+@router.post("/donors")
+def add_donor(donor: dict):
+    if not donor:
+        raise HTTPException(status_code=400, detail="Donor data is required")
+
+    result = donors_collection.insert_one(donor)
+
+    new_donor = donors_collection.find_one({"_id": result.inserted_id})
+    new_donor["_id"] = str(new_donor["_id"])
+
+    return new_donor
 
 
 # ---------------------------
@@ -68,3 +86,16 @@ def delete_donor(donor_id: str):
         raise HTTPException(status_code=404, detail="Donor not found")
 
     return {"message": "Donor deleted successfully"}
+
+
+
+@router.post("/donors")
+def add_donor(donor: DonorCreate):
+    donor_dict = donor.dict()
+
+    result = donors_collection.insert_one(donor_dict)
+
+    return {
+        "_id": str(result.inserted_id),
+        **donor_dict
+    }
