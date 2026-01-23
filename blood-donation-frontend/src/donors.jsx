@@ -4,7 +4,7 @@ export const fetchDonors = async () => {
 	const token = localStorage.getItem("token");
 
 	const res = await axios.get(
-		"https://<YOUR-RENDER-URL>/donors",
+		"https://blood-donation-system-c82d.onrender.com/donors",
 		{
 			headers: {
 				Authorization: `Bearer ${token}`,

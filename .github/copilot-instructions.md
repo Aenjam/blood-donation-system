@@ -23,6 +23,8 @@ This file gives focused, actionable guidance to AI coding agents working in this
 - Small, flat FastAPI router modules: each file in `backend/app/routes` registers endpoints via `APIRouter` and is included in `app.main`.
 - DB objects: when returning Mongo documents, `_id` is converted to string manually in `donors.py`.
 - Frontend currently posts login to a deployed URL (`https://blood-donation-system-c82d.onrender.com/login`) inside `Login.jsx` — update to local backend (`http://localhost:8080/login`) when developing locally.
+ - Frontend currently posts login to a deployed URL (`https://blood-donation-system-c82d.onrender.com/login`) inside `Login.jsx` — update to local backend (`http://localhost:8080/login`) when developing locally.
+ - Use the `RENDER_URL` env var (set to `https://blood-donation-system-c82d.onrender.com`) when deploying; backend `main.py` will include it in allowed CORS origins.
 - `blood-donation-frontend/src/donors.jsx` is empty — expect incomplete frontend work here.
 
 5) Files to inspect when making changes
